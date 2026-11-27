@@ -25,7 +25,7 @@ class TrainDataCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self,
         hass: HomeAssistant,
         train_number: str,
-        origin_station_code: str,
+        origin_station_code: str | None = None,
     ) -> None:
         self.client = ViaggiaTrenoClient(async_get_clientsession(hass))
         self.train_number = train_number
