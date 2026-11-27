@@ -134,20 +134,22 @@ class ItalianRailMonitorOptionsFlow(config_entries.OptionsFlow):
 
         if not stations:
             errors["base"] = "stations_unavailable"
-            schema = vol.Schema(
-                {
-                    vol.Required(
-                        CONF_BOARDING_STATION_CODE,
-                        default=config_entry.options.get(
-                            CONF_BOARDING_STATION_CODE,
-                            config_entry.data.get(
-                                CONF_BOARDING_STATION_CODE,
-                                DEFAULT_BOARDING_STATION_CODE,
-                            ),
-                        ),
-                    ): str
-                }
+            current_code = config_entry.options.get(
+                CONF_BOARDING_STATION_CODE,
+                config_entry.data.get(CONF_BOARDING_STATION_CODE),
             )
+            if current_code is None:
+                schema = vol.Schema(
+                    {vol.Required(CONF_BOARDING_STATION_CODE): str}
+                )
+            else:
+                schema = vol.Schema(
+                    {
+                        vol.Required(
+                            CONF_BOARDING_STATION_CODE, default=current_code
+                        ): str
+                    }
+                )
         else:
             current_code = config_entry.options.get(
                 CONF_BOARDING_STATION_CODE,
