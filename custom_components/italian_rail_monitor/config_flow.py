@@ -6,8 +6,8 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.core import callback
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers import selector
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import ViaggiaTrenoApiError, ViaggiaTrenoClient
 from .const import (
@@ -30,7 +30,7 @@ def _station_options(data):
     return options
 
 
-def _station_selector(options, current=None):
+def _station_selector(options):
     """Return a dropdown selector for the stations on the selected route."""
     choices = [
         {"value": code, "label": name}
@@ -60,7 +60,6 @@ class ItalianRailMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             client = ViaggiaTrenoClient(async_get_clientsession(self.hass))
             try:
-                await client.find_train(train_number, station_code)
                 train_data = await client.get_train_status(train_number, station_code)
             except ViaggiaTrenoApiError:
                 errors["base"] = "train_not_found"
