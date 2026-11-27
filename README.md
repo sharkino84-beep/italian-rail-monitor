@@ -7,14 +7,16 @@ Home Assistant custom integration for monitoring Italian trains.
 
 ## Current status
 
-The integration supports configuring a train by its train number and
-ViaggiaTreno origin-station code. It exposes the general reported delay and a
-separate sensor for the current arrival-delay value reported for a configurable
-boarding station. The boarding station is selected in the integration options.
+The integration configures a train by its number and ViaggiaTreno origin-station
+code, then lets the user select the boarding station from the stops returned
+for that train. It exposes the general reported delay, an estimated delay for
+the selected boarding station, and the planned arrival platform.
 
-The first development target is validating live train monitoring with services
-in the Morbegno–Milano corridor. The integration is being designed so that
-additional data providers and Italian rail operators can be added separately.
+The boarding-station delay estimate is updated using the actual departure
+delay at the most recently departed station before the selected boarding stop.
+It is an indicative carry-forward estimate, not an official arrival prediction.
+If a newer preceding station has no actual departure yet, the last available
+actual departure remains the source.
 
 ## Data source
 
@@ -38,12 +40,12 @@ The integration is located in
 
 - [x] Initial Home Assistant integration structure
 - [x] ViaggiaTreno train lookup and status client
-- [x] Separate sensor for the configured boarding stop's reported arrival delay
-- [ ] Validate forecast updates while a train is approaching the boarding station
-- [ ] Improve delay estimation using the last detected station and observed delay
+- [x] Select the boarding station from the train's route stops
+- [x] Estimate boarding-station delay from the latest actual preceding departure
+- [x] Expose the planned arrival platform at the boarding station
+- [ ] Validate estimate updates across multiple live station transits
 - [ ] Cancellation and suppressed-stop detection
 - [ ] Configurable delay threshold and notifications
-- [ ] Station and service search
 - [ ] Additional providers and operators
 
 ## Disclaimer
