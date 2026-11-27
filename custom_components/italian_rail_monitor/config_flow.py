@@ -112,17 +112,17 @@ class ItalianRailMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Return the options flow for an existing train."""
-        return ItalianRailMonitorOptionsFlow(config_entry)
+        # Home Assistant provides the config entry through self.config_entry.
+        return ItalianRailMonitorOptionsFlow()
 
 
 class ItalianRailMonitorOptionsFlow(config_entries.OptionsFlow):
     """Configure the boarding station for an existing train."""
 
-    def __init__(self, config_entry):
-        self.config_entry = config_entry
-
     async def async_step_init(self, user_input=None):
         """Select the boarding station from the current train route."""
+        config_entry = self.config_entry
+
         if user_input is not None:
             return self.async_create_entry(
                 title="",
@@ -133,8 +133,8 @@ class ItalianRailMonitorOptionsFlow(config_entries.OptionsFlow):
                 },
             )
 
-        train_number = self.config_entry.data[CONF_TRAIN_NUMBER]
-        origin_code = self.config_entry.data[CONF_ORIGIN_STATION_CODE]
+        train_number = config_entry.data[CONF_TRAIN_NUMBER]
+        origin_code = config_entry.data[CONF_ORIGIN_STATION_CODE]
         client = ViaggiaTrenoClient(async_get_clientsession(self.hass))
         errors = {}
         try:
@@ -149,9 +149,9 @@ class ItalianRailMonitorOptionsFlow(config_entries.OptionsFlow):
                 {
                     vol.Required(
                         CONF_BOARDING_STATION_CODE,
-                        default=self.config_entry.options.get(
+                        default=config_entry.options.get(
                             CONF_BOARDING_STATION_CODE,
-                            self.config_entry.data.get(
+                            config_entry.data.get(
                                 CONF_BOARDING_STATION_CODE,
                                 DEFAULT_BOARDING_STATION_CODE,
                             ),
@@ -160,9 +160,9 @@ class ItalianRailMonitorOptionsFlow(config_entries.OptionsFlow):
                 }
             )
         else:
-            current_code = self.config_entry.options.get(
+            current_code = config_entry.options.get(
                 CONF_BOARDING_STATION_CODE,
-                self.config_entry.data.get(
+                config_entry.data.get(
                     CONF_BOARDING_STATION_CODE, DEFAULT_BOARDING_STATION_CODE
                 ),
             )
