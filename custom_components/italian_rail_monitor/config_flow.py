@@ -156,14 +156,23 @@ class ItalianRailMonitorOptionsFlow(config_entries.OptionsFlow):
                 config_entry.data.get(CONF_BOARDING_STATION_CODE),
             )
             if current_code not in stations:
-                current_code = next(iter(stations))
-            schema = vol.Schema(
-                {
-                    vol.Required(
-                        CONF_BOARDING_STATION_CODE, default=current_code
-                    ): _station_selector(stations)
-                }
-            )
+                current_code = None
+            if current_code is None:
+                schema = vol.Schema(
+                    {
+                        vol.Required(
+                            CONF_BOARDING_STATION_CODE
+                        ): _station_selector(stations)
+                    }
+                )
+            else:
+                schema = vol.Schema(
+                    {
+                        vol.Required(
+                            CONF_BOARDING_STATION_CODE, default=current_code
+                        ): _station_selector(stations)
+                    }
+                )
 
         return self.async_show_form(
             step_id="init", data_schema=schema, errors=errors
