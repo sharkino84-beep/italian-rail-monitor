@@ -259,8 +259,8 @@ class TrainBoardingPlatformSensor(CoordinatorEntity, SensorEntity):
 
 
 
-def _next_stop(data: dict[str, Any]) -> dict[str, Any] | None:
-    """Find the stop after the latest detected station."""
+def _next_stop_index(data: dict[str, Any]) -> int | None:
+    """Find the index of the stop after the latest detected station."""
     stops = data.get("fermate", [])
     if not isinstance(stops, list) or not stops:
         return None
@@ -273,7 +273,7 @@ def _next_stop(data: dict[str, Any]) -> dict[str, Any] | None:
             if isinstance(station, str) and " ".join(
                 station.casefold().split()
             ) == normalized:
-                return stops[index + 1] if index + 1 < len(stops) else None
+                return index + 1 if index + 1 < len(stops) else None
 
     # Fallback when the service does not provide a matching detection station.
     last_departed_index = None
@@ -282,7 +282,33 @@ def _next_stop(data: dict[str, Any]) -> dict[str, Any] | None:
             last_departed_index = index
 
     if last_departed_index is not None and last_departed_index + 1 < len(stops):
-        return stops[last_departed_index + 1]
+        return last_departed_index + 1
+    return None
+
+
+def _next_stop(data: dict[str, Any]) -> dict[str, Any] | None:
+    """Return the next stop in the route."""
+    stops = data.get("fermate", [])
+    index = _next_stop_index(data)
+    return stops[index] if index is not None else None
+
+
+def _next_stop_departure_delay(
+    data: dict[str, Any],
+) -> tuple[dict[str, Any], int | float] | None:
+    """Return the latest actual departure delay before the next stop."""
+    stops = data.get("fermate", [])
+    next_index = _next_stop_index(data)
+    if next_index is None:
+        return None
+
+    for index in range(next_index - 1, -1, -1):
+        stop = stops[index]
+        delay = stop.get("ritardoPartenza")
+        if stop.get("partenzaReale") is not None and isinstance(
+            delay, (int, float)
+        ):
+            return stop, delay
     return None
 
 
@@ -353,30 +379,24 @@ class TrainNextStopDelaySensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self) -> int | float | None:
-        stop = _next_stop(self.coordinator.data)
-        if stop is None:
-            return None
-        value = stop.get("ritardoArrivo")
-        if not isinstance(value, (int, float)):
-            value = stop.get("ritardoPartenza")
-        return value if isinstance(value, (int, float)) else None
+        latest = _next_stop_departure_delay(self.coordinator.data)
+        return latest[1] if latest else None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        stop = _next_stop(self.coordinator.data)
-        if stop is None:
-            return {
-                "last_detection_station": self.coordinator.data.get(
-                    "stazioneUltimoRilevamento"
-                )
-            }
+        data = self.coordinator.data
+        next_stop = _next_stop(data)
+        latest = _next_stop_departure_delay(data)
+        source_stop, source_delay = latest if latest else (None, None)
         return {
-            "next_station": stop.get("stazione"),
-            "scheduled_arrival": stop.get("arrivo_teorico"),
-            "estimated_arrival": stop.get("arrivoStimato"),
-            "arrival_delay": stop.get("ritardoArrivo"),
-            "departure_delay": stop.get("ritardoPartenza"),
-            "last_detection_station": self.coordinator.data.get(
-                "stazioneUltimoRilevamento"
+            "next_station": next_stop.get("stazione") if next_stop else None,
+            "estimate_method": "latest_actual_departure_before_next_stop",
+            "estimate_source_station": (
+                source_stop.get("stazione") if source_stop else None
             ),
+            "estimate_source_departure_time": (
+                source_stop.get("partenzaReale") if source_stop else None
+            ),
+            "estimate_source_departure_delay": source_delay,
+            "last_detection_station": data.get("stazioneUltimoRilevamento"),
         }
