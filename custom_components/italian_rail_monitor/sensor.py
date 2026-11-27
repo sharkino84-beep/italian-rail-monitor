@@ -55,6 +55,8 @@ async def async_setup_entry(
             TrainDelaySensor(entry),
             TrainBoardingDelaySensor(entry),
             TrainBoardingPlatformSensor(entry),
+    TrainNextStopSensor(entry),
+    TrainNextStopDelaySensor(entry),
         ]
     )
 
@@ -253,4 +255,128 @@ class TrainBoardingPlatformSensor(CoordinatorEntity, SensorEntity):
             ),
             "actual_platform": stop.get("binarioEffettivoArrivoDescrizione"),
             "actual_platform_code": stop.get("binarioEffettivoArrivoCodice"),
+        }
+
+
+
+def _next_stop(data: dict[str, Any]) -> dict[str, Any] | None:
+    """Find the stop after the latest detected station."""
+    stops = data.get("fermate", [])
+    if not isinstance(stops, list) or not stops:
+        return None
+
+    last_station = data.get("stazioneUltimoRilevamento")
+    if isinstance(last_station, str) and last_station.strip():
+        normalized = " ".join(last_station.casefold().split())
+        for index in range(len(stops) - 1, -1, -1):
+            station = stops[index].get("stazione")
+            if isinstance(station, str) and " ".join(
+                station.casefold().split()
+            ) == normalized:
+                return stops[index + 1] if index + 1 < len(stops) else None
+
+    # Fallback when the service does not provide a matching detection station.
+    last_departed_index = None
+    for index, stop in enumerate(stops):
+        if stop.get("partenzaReale") is not None:
+            last_departed_index = index
+
+    if last_departed_index is not None and last_departed_index + 1 < len(stops):
+        return stops[last_departed_index + 1]
+    return None
+
+
+NEXT_STOP_DESCRIPTION = SensorEntityDescription(
+    key="next_stop",
+    name="Prossima fermata",
+    icon="mdi:train-marker",
+    entity_category=EntityCategory.DIAGNOSTIC,
+)
+
+NEXT_STOP_DELAY_DESCRIPTION = SensorEntityDescription(
+    key="next_stop_delay",
+    name="Ritardo previsto prossima fermata",
+    native_unit_of_measurement=UnitOfTime.MINUTES,
+    icon="mdi:train-clock",
+    entity_category=EntityCategory.DIAGNOSTIC,
+)
+
+
+class TrainNextStopSensor(CoordinatorEntity, SensorEntity):
+    """Show the next station after the latest train detection."""
+
+    entity_description = NEXT_STOP_DESCRIPTION
+
+    def __init__(self, entry: ItalianRailMonitorConfigEntry) -> None:
+        super().__init__(entry.runtime_data)
+        train_number = entry.data[CONF_TRAIN_NUMBER]
+        self._attr_unique_id = f"{entry.entry_id}_next_stop"
+        self._attr_name = f"RE {train_number} Prossima fermata"
+
+    @property
+    def native_value(self) -> str | None:
+        stop = _next_stop(self.coordinator.data)
+        return stop.get("stazione") if stop else None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        stop = _next_stop(self.coordinator.data)
+        if stop is None:
+            return {
+                "last_detection_station": self.coordinator.data.get(
+                    "stazioneUltimoRilevamento"
+                )
+            }
+        return {
+            "last_detection_station": self.coordinator.data.get(
+                "stazioneUltimoRilevamento"
+            ),
+            "scheduled_arrival": stop.get("arrivo_teorico"),
+            "estimated_arrival": stop.get("arrivoStimato"),
+            "arrival_delay": stop.get("ritardoArrivo"),
+            "scheduled_departure": stop.get("partenza_teorica"),
+            "platform": stop.get("binarioProgrammatoArrivoDescrizione")
+            or stop.get("binarioProgrammatoArrivoCodice"),
+        }
+
+
+class TrainNextStopDelaySensor(CoordinatorEntity, SensorEntity):
+    """Show the estimated arrival delay at the next station."""
+
+    entity_description = NEXT_STOP_DELAY_DESCRIPTION
+
+    def __init__(self, entry: ItalianRailMonitorConfigEntry) -> None:
+        super().__init__(entry.runtime_data)
+        train_number = entry.data[CONF_TRAIN_NUMBER]
+        self._attr_unique_id = f"{entry.entry_id}_next_stop_delay"
+        self._attr_name = f"RE {train_number} Ritardo previsto prossima fermata"
+
+    @property
+    def native_value(self) -> int | float | None:
+        stop = _next_stop(self.coordinator.data)
+        if stop is None:
+            return None
+        value = stop.get("ritardoArrivo")
+        if not isinstance(value, (int, float)):
+            value = stop.get("ritardoPartenza")
+        return value if isinstance(value, (int, float)) else None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        stop = _next_stop(self.coordinator.data)
+        if stop is None:
+            return {
+                "last_detection_station": self.coordinator.data.get(
+                    "stazioneUltimoRilevamento"
+                )
+            }
+        return {
+            "next_station": stop.get("stazione"),
+            "scheduled_arrival": stop.get("arrivo_teorico"),
+            "estimated_arrival": stop.get("arrivoStimato"),
+            "arrival_delay": stop.get("ritardoArrivo"),
+            "departure_delay": stop.get("ritardoPartenza"),
+            "last_detection_station": self.coordinator.data.get(
+                "stazioneUltimoRilevamento"
+            ),
         }
