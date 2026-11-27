@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Monitora un treno",
+        "description": "Inserisci il numero del treno e il codice ViaggiaTreno della sua stazione di origine.",
+        "data": {
+          "train_number": "Numero treno",
+          "origin_station_code": "Codice stazione di origine"
+        }
+      }
+    },
+    "error": {
+      "train_not_found": "Treno non trovato. Controlla il numero e il codice della stazione di origine."
+    },
+    "abort": {
+      "already_configured": "Questo treno è già configurato."
+    }
+  }
+}
