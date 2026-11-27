@@ -55,8 +55,8 @@ async def async_setup_entry(
             TrainDelaySensor(entry),
             TrainBoardingDelaySensor(entry),
             TrainBoardingPlatformSensor(entry),
-    TrainNextStopSensor(entry),
-    TrainNextStopDelaySensor(entry),
+            TrainNextStopSensor(entry),
+            TrainNextStopDelaySensor(entry),
         ]
     )
 
@@ -289,7 +289,7 @@ def _next_stop(data: dict[str, Any]) -> dict[str, Any] | None:
 NEXT_STOP_DESCRIPTION = SensorEntityDescription(
     key="next_stop",
     name="Prossima fermata",
-    icon="mdi:train-marker",
+    icon="mdi:train",
     entity_category=EntityCategory.DIAGNOSTIC,
 )
 
