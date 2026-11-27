@@ -7,9 +7,10 @@ Home Assistant custom integration for monitoring Italian trains.
 
 ## Current status
 
-The initial implementation supports configuring a train by its train number
-and ViaggiaTreno origin-station code. It creates a sensor with the reported
-delay and exposes selected journey details as attributes.
+The integration supports configuring a train by its train number and
+ViaggiaTreno origin-station code. It exposes the general reported delay and a
+separate sensor for the current arrival-delay value reported for a configurable
+boarding station. The boarding station is selected in the integration options.
 
 The first development target is validating live train monitoring with services
 in the Morbegno–Milano corridor. The integration is being designed so that
@@ -24,8 +25,9 @@ the service and operator.
 
 ## Installation
 
-This repository is not yet ready for normal end-user installation. Once the
-first version is tested, it can be added to HACS as a custom repository.
+This repository can be added to HACS as a custom repository (Integration).
+The project remains experimental and should be tested before relying on it for
+travel decisions.
 
 ## Development
 
@@ -36,9 +38,9 @@ The integration is located in
 
 - [x] Initial Home Assistant integration structure
 - [x] ViaggiaTreno train lookup and status client
-- [ ] Validate live updates while a train is running
-- [ ] Monitor delay progression across intermediate stations
-- [ ] Estimate delay at a selected boarding station
+- [x] Separate sensor for the configured boarding stop's reported arrival delay
+- [ ] Validate forecast updates while a train is approaching the boarding station
+- [ ] Improve delay estimation using the last detected station and observed delay
 - [ ] Cancellation and suppressed-stop detection
 - [ ] Configurable delay threshold and notifications
 - [ ] Station and service search
