@@ -1,0 +1,15 @@
+{
+  "domain": "italian_rail_monitor",
+  "name": "Italian Rail Monitor",
+  "codeowners": [
+    "@sharkino84-beep"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/sharkino84-beep/italian-rail-monitor",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/sharkino84-beep/italian-rail-monitor/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
