@@ -16,5 +16,16 @@
     "abort": {
       "already_configured": "Questo treno è già configurato."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Fermata di salita",
+        "description": "Inserisci il codice ViaggiaTreno della stazione in cui sali sul treno.",
+        "data": {
+          "boarding_station_code": "Codice stazione di salita"
+        }
+      }
+    }
   }
 }
