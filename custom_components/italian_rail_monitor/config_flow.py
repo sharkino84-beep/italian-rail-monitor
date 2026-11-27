@@ -5,6 +5,7 @@ from __future__ import annotations
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import ViaggiaTrenoApiError, ViaggiaTrenoClient
@@ -57,7 +58,7 @@ class ItalianRailMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     @staticmethod
-    @config_entries.callback
+    @callback
     def async_get_options_flow(config_entry):
         """Return the options flow for an existing train."""
         return ItalianRailMonitorOptionsFlow(config_entry)
