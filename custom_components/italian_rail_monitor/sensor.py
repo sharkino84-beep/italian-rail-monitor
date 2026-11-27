@@ -66,8 +66,9 @@ class TrainDelaySensor(CoordinatorEntity, SensorEntity):
 
     def __init__(self, entry: ItalianRailMonitorConfigEntry) -> None:
         super().__init__(entry.runtime_data)
+        train_number = entry.data[CONF_TRAIN_NUMBER]
         self._attr_unique_id = f"{entry.entry_id}_delay"
-        self._attr_name = f"RE {entry.data[CONF_TRAIN_NUMBER]} Ritardo"
+        self._attr_name = f"RE {train_number} Ritardo"
 
     @property
     def native_value(self) -> int | float | None:
@@ -102,11 +103,15 @@ class TrainBoardingDelaySensor(CoordinatorEntity, SensorEntity):
 
     def __init__(self, entry: ItalianRailMonitorConfigEntry) -> None:
         super().__init__(entry.runtime_data)
+        train_number = entry.data[CONF_TRAIN_NUMBER]
         self._station_code = entry.options.get(
             CONF_BOARDING_STATION_CODE,
             entry.data.get(CONF_BOARDING_STATION_CODE, DEFAULT_BOARDING_STATION_CODE),
         )
         self._attr_unique_id = f"{entry.entry_id}_boarding_delay"
+        self._attr_name = (
+            f"RE {train_number} Ritardo stimato alla fermata di salita"
+        )
 
     def _boarding_index(self) -> int | None:
         """Find the selected boarding stop in the route."""
@@ -204,11 +209,15 @@ class TrainBoardingPlatformSensor(CoordinatorEntity, SensorEntity):
 
     def __init__(self, entry: ItalianRailMonitorConfigEntry) -> None:
         super().__init__(entry.runtime_data)
+        train_number = entry.data[CONF_TRAIN_NUMBER]
         self._station_code = entry.options.get(
             CONF_BOARDING_STATION_CODE,
             entry.data.get(CONF_BOARDING_STATION_CODE, DEFAULT_BOARDING_STATION_CODE),
         )
         self._attr_unique_id = f"{entry.entry_id}_boarding_platform"
+        self._attr_name = (
+            f"RE {train_number} Binario previsto fermata di salita"
+        )
 
     def _boarding_stop(self) -> dict[str, Any] | None:
         """Find the selected boarding stop in the journey."""
