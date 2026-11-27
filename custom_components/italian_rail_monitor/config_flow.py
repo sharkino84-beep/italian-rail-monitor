@@ -172,7 +172,7 @@ class ItalianRailMonitorOptionsFlow(config_entries.OptionsFlow):
                 {
                     vol.Required(
                         CONF_BOARDING_STATION_CODE, default=current_code
-                    ): _station_selector(stations, current_code)
+                    ): _station_selector(stations)
                 }
             )
 
