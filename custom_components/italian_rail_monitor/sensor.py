@@ -115,7 +115,9 @@ class TrainBoardingDelaySensor(CoordinatorEntity, SensorEntity):
                 return index
         return None
 
-    def _latest_preceding_departure(self) -> tuple[dict[str, Any], int] | None:
+    def _latest_preceding_departure(
+        self,
+    ) -> tuple[dict[str, Any], int | float] | None:
         """Return the most recent preceding stop with an actual departure."""
         stops = self.coordinator.data.get("fermate", [])
         boarding_index = self._boarding_index()
@@ -157,19 +159,37 @@ class TrainBoardingDelaySensor(CoordinatorEntity, SensorEntity):
             "boarding_station_code": self._station_code,
             "boarding_station": boarding_stop.get("stazione"),
             "boarding_station_found": True,
-            "boarding_station_reached": boarding_stop.get("arrivoReale") is not None,
+            "boarding_station_reached": (
+                boarding_stop.get("arrivoReale") is not None
+            ),
             "scheduled_arrival": boarding_stop.get("arrivo_teorico"),
-            "arrival_delay_reported_by_service": boarding_stop.get("ritardoArrivo"),
+            "arrival_delay_reported_by_service": boarding_stop.get(
+                "ritardoArrivo"
+            ),
             "estimated_delay": source_delay,
             "estimate_method": "last_actual_departure_before_boarding_station",
-            "estimate_source_station": source_stop.get("stazione") if source_stop else None,
-            "estimate_source_station_code": source_stop.get("id") if source_stop else None,
-            "estimate_source_departure_time": source_stop.get("partenzaReale") if source_stop else None,
+            "estimate_source_station": (
+                source_stop.get("stazione") if source_stop else None
+            ),
+            "estimate_source_station_code": (
+                source_stop.get("id") if source_stop else None
+            ),
+            "estimate_source_departure_time": (
+                source_stop.get("partenzaReale") if source_stop else None
+            ),
             "estimate_source_departure_delay": source_delay,
-            "scheduled_platform": boarding_stop.get("binarioProgrammatoArrivoDescrizione"),
-            "scheduled_platform_code": boarding_stop.get("binarioProgrammatoArrivoCodice"),
-            "actual_platform": boarding_stop.get("binarioEffettivoArrivoDescrizione"),
-            "actual_platform_code": boarding_stop.get("binarioEffettivoArrivoCodice"),
+            "scheduled_platform": boarding_stop.get(
+                "binarioProgrammatoArrivoDescrizione"
+            ),
+            "scheduled_platform_code": boarding_stop.get(
+                "binarioProgrammatoArrivoCodice"
+            ),
+            "actual_platform": boarding_stop.get(
+                "binarioEffettivoArrivoDescrizione"
+            ),
+            "actual_platform_code": boarding_stop.get(
+                "binarioEffettivoArrivoCodice"
+            ),
             "last_detection_station": self.coordinator.data.get(
                 "stazioneUltimoRilevamento"
             ),
@@ -216,8 +236,12 @@ class TrainBoardingPlatformSensor(CoordinatorEntity, SensorEntity):
             return {"boarding_station_code": self._station_code}
         return {
             "boarding_station": stop.get("stazione"),
-            "scheduled_platform": stop.get("binarioProgrammatoArrivoDescrizione"),
-            "scheduled_platform_code": stop.get("binarioProgrammatoArrivoCodice"),
+            "scheduled_platform": stop.get(
+                "binarioProgrammatoArrivoDescrizione"
+            ),
+            "scheduled_platform_code": stop.get(
+                "binarioProgrammatoArrivoCodice"
+            ),
             "actual_platform": stop.get("binarioEffettivoArrivoDescrizione"),
             "actual_platform_code": stop.get("binarioEffettivoArrivoCodice"),
         }
