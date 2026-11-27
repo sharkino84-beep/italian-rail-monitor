@@ -3,15 +3,23 @@
     "step": {
       "user": {
         "title": "Monitora un treno",
-        "description": "Inserisci il numero del treno e il codice ViaggiaTreno della sua stazione di origine.",
+        "description": "Inserisci il numero del treno e il codice ViaggiaTreno della stazione di partenza.",
         "data": {
           "train_number": "Numero treno",
-          "origin_station_code": "Codice stazione di origine"
+          "origin_station_code": "Codice stazione di partenza"
+        }
+      },
+      "boarding": {
+        "title": "Seleziona la stazione di salita",
+        "description": "Scegli la fermata in cui salirai. L'elenco viene ricavato dalle fermate del treno.",
+        "data": {
+          "boarding_station_code": "Stazione di salita"
         }
       }
     },
     "error": {
-      "train_not_found": "Treno non trovato. Controlla il numero e il codice della stazione di origine."
+      "train_not_found": "Treno non trovato. Controlla il numero e il codice della stazione di partenza.",
+      "stations_unavailable": "Non è stato possibile recuperare l'elenco delle fermate del treno. Riprova."
     },
     "abort": {
       "already_configured": "Questo treno è già configurato."
@@ -20,12 +28,15 @@
   "options": {
     "step": {
       "init": {
-        "title": "Fermata di salita",
-        "description": "Inserisci il codice ViaggiaTreno della stazione in cui sali sul treno.",
+        "title": "Stazione di salita",
+        "description": "Seleziona la stazione in cui salirai sul treno.",
         "data": {
-          "boarding_station_code": "Codice stazione di salita"
+          "boarding_station_code": "Stazione di salita"
         }
       }
+    },
+    "error": {
+      "stations_unavailable": "Non è stato possibile recuperare l'elenco delle fermate. Puoi riprovare più tardi."
     }
   }
 }
