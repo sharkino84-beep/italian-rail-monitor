@@ -213,7 +213,7 @@ class TrainBoardingPlatformSensor(CoordinatorEntity, SensorEntity):
         train_number = entry.data[CONF_TRAIN_NUMBER]
         self._station_code = entry.options.get(
             CONF_BOARDING_STATION_CODE,
-            entry.data.get(CONF_BOARDING_STATION_CODE, DEFAULT_BOARDING_STATION_CODE),
+            entry.data.get(CONF_BOARDING_STATION_CODE),
         )
         self._attr_unique_id = f"{entry.entry_id}_boarding_platform"
         self._attr_name = (
