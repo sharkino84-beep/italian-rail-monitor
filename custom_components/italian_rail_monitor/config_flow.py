@@ -14,7 +14,6 @@ from .const import (
     CONF_BOARDING_STATION_CODE,
     CONF_ORIGIN_STATION_CODE,
     CONF_TRAIN_NUMBER,
-    DEFAULT_BOARDING_STATION_CODE,
     DOMAIN,
 )
 
@@ -152,9 +151,7 @@ class ItalianRailMonitorOptionsFlow(config_entries.OptionsFlow):
         else:
             current_code = config_entry.options.get(
                 CONF_BOARDING_STATION_CODE,
-                config_entry.data.get(
-                    CONF_BOARDING_STATION_CODE, DEFAULT_BOARDING_STATION_CODE
-                ),
+                config_entry.data.get(CONF_BOARDING_STATION_CODE),
             )
             if current_code not in stations:
                 current_code = next(iter(stations))
