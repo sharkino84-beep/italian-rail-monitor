@@ -1,0 +1,10 @@
+{
+  "name": "Italian Rail Monitor",
+  "render_readme": true,
+  "domains": [
+    "italian_rail_monitor"
+  ],
+  "country": [
+    "IT"
+  ]
+}
