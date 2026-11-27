@@ -6,14 +6,11 @@ response format may change without notice.
 
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 import aiohttp
 
 from .const import API_BASE_URL, API_HEADERS
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class ViaggiaTrenoApiError(Exception):
@@ -27,9 +24,13 @@ class ViaggiaTrenoClient:
         self._session = session
 
     async def find_train(
-        self, train_number: str, origin_station_code: str
+        self, train_number: str, origin_station_code: str | None = None
     ) -> dict[str, str]:
-        """Resolve a train number to its origin code and run timestamp."""
+        """Resolve a train number to its origin code and run timestamp.
+
+        If the origin code is omitted, use the first exact train-number match
+        returned by ViaggiaTreno's autocomplete endpoint.
+        """
         url = f"{API_BASE_URL}/cercaNumeroTrenoTrenoAutocomplete/{train_number}"
 
         try:
@@ -46,23 +47,25 @@ class ViaggiaTrenoClient:
                 continue
             _, identifier = line.rsplit("|", 1)
             parts = identifier.split("-")
+            if len(parts) < 3 or parts[0] != train_number:
+                continue
             if (
-                len(parts) >= 3
-                and parts[0] == train_number
-                and parts[1].upper() == origin_station_code.upper()
+                origin_station_code
+                and parts[1].upper() != origin_station_code.upper()
             ):
-                return {
-                    "train_number": parts[0],
-                    "origin_station_code": parts[1],
-                    "timestamp": parts[2],
-                }
+                continue
+            return {
+                "train_number": parts[0],
+                "origin_station_code": parts[1],
+                "timestamp": parts[2],
+            }
 
         raise ViaggiaTrenoApiError(
-            "No matching train found for this number and origin station"
+            "No matching train found for the supplied train number"
         )
 
     async def get_train_status(
-        self, train_number: str, origin_station_code: str
+        self, train_number: str, origin_station_code: str | None = None
     ) -> dict[str, Any]:
         """Fetch the current status for a train."""
         train = await self.find_train(train_number, origin_station_code)
