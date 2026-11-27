@@ -23,7 +23,7 @@ async def async_setup_entry(
     coordinator = TrainDataCoordinator(
         hass,
         entry.data[CONF_TRAIN_NUMBER],
-        entry.data[CONF_ORIGIN_STATION_CODE],
+        entry.data.get(CONF_ORIGIN_STATION_CODE),
     )
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator
