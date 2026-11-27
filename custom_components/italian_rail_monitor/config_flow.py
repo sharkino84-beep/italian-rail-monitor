@@ -5,7 +5,6 @@ from __future__ import annotations
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import ViaggiaTrenoApiError, ViaggiaTrenoClient
@@ -50,13 +49,3 @@ class ItalianRailMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=schema, errors=errors
         )
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry):
-        """Return the options flow handler."""
-        return ItalianRailMonitorOptionsFlow()
-
-
-class ItalianRailMonitorOptionsFlow(config_entries.OptionsFlow):
-    """Options flow placeholder for future settings."""
