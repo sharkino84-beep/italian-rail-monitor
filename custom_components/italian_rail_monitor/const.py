@@ -9,7 +9,6 @@ CONF_TRAIN_NUMBER = "train_number"
 CONF_ORIGIN_STATION_CODE = "origin_station_code"
 CONF_BOARDING_STATION_CODE = "boarding_station_code"
 
-DEFAULT_BOARDING_STATION_CODE = "S01425"
 
 UPDATE_INTERVAL = timedelta(seconds=60)
 
